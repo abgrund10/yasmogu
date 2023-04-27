@@ -7,4 +7,8 @@ interface CatsService {
 
     @GET("fact")
     fun getCatFact() : Call<Fact>
+
+    suspend fun getCatFact2: Call<Fact>{
+        return Call
+    }
 }
