@@ -11,18 +11,32 @@ class CatsPresenter(
     private var _catsView: ICatsView? = null
 
     fun onInitComplete() {
-        catsService.getCatFact().enqueue(object : Callback<Fact> {
+        val job = launch(MainDispatcher + CoroutineName("Pet")) {
+            try {
+                val getcat = catsService.getCatFact()
+                val responce = _catsView?.populate()
 
-            override fun onResponse(call: Call<Fact>, response: Response<Fact>) {
-                if (response.isSuccessful && response.body() != null) {
-                    _catsView?.populate(response.body()!!)
+                uiState.value = UiState.Success(responce)
+            } catch (ex: Exception) {
+                when (ex) {
+                    is SocketTimeoutException -> {
+                        Toast.makeText(
+                            getApplicationContext(),
+                            "Failed to get responce from server",
+                            Toast.LENGTH_LONG
+                        ).show();
+                    }
+                    else -> CrashMonitor.trackWarning() {
+                        Toast.makeText(
+                            getApplicationContext(),
+                            exception.message,
+                            Toast.LENGTH_LONG
+                        ).show();
+                    }
                 }
             }
-
-            override fun onFailure(call: Call<Fact>, t: Throwable) {
-                CrashMonitor.trackWarning()
-            }
-        })
+        }
+        job.cancel()
     }
 
     fun attachView(catsView: ICatsView) {
