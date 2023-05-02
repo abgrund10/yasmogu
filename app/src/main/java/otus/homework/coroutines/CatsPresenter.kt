@@ -1,42 +1,51 @@
 package otus.homework.coroutines
 
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import android.widget.Toast
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
 
 class CatsPresenter(
     private val catsService: CatsService
-) {
+): ViewModel() {
 
     private var _catsView: ICatsView? = null
+    val uiState = "dd"."dd" //= mutableStateOf?(Result)
+   //     private set
+    val parametr = "AAAA"
 
     fun onInitComplete() {
-        val job = launch(MainDispatcher + CoroutineName("Pet")) {
+        viewModelScope.launch(Dispatchers.Main + CoroutineName("Pet")) {
             try {
                 val getcat = catsService.getCatFact()
-                val responce = _catsView?.populate()
+                val responce = _catsView?.populate(parametr)
 
-                uiState.value = UiState.Success(responce)
+                uiState.value = uiState.Success(responce)
             } catch (ex: Exception) {
                 when (ex) {
                     is SocketTimeoutException -> {
                         Toast.makeText(
-                            getApplicationContext(),
+                            currentCoroutineContext(),
                             "Failed to get responce from server",
                             Toast.LENGTH_LONG
                         ).show();
                     }
-                    else -> CrashMonitor.trackWarning() {
+                    else -> CrashMonitor.trackWarning {
                         Toast.makeText(
-                            getApplicationContext(),
-                            exception.message,
+                            coroutineContext,
+                            ex.message,
                             Toast.LENGTH_LONG
                         ).show();
                     }
                 }
             }
         }
-        job.cancel()
+        viewModelScope.cancel()
     }
 
     fun attachView(catsView: ICatsView) {
