@@ -2,15 +2,13 @@ package otus.homework.coroutines
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import java.time.LocalDateTime.now
+import com.example.app.R
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var catsPresenter: CatsPresenter
 
     private val diContainer = DiContainer()
-    private var mSwipeRefresh: SwipeRefreshLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,11 +21,6 @@ class MainActivity : AppCompatActivity() {
         catsPresenter.attachView(view)
         catsPresenter.onInitComplete()
 
-        mSwipeRefresh = findViewById(R.id.swipe_refresh)
-        mSwipeRefresh.setOnRefreshListener {
-                Fact            // refresh your list contents somehow
-            mSwipeRefresh.isRefreshing = false   // reset the SwipeRefreshLayout (stop the loading spinner)
-        }
     }
 
     override fun onStop() {

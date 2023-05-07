@@ -1,12 +1,11 @@
 package otus.homework.coroutines
 
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 
@@ -15,32 +14,33 @@ class CatsPresenter(
 ): ViewModel() {
 
     private var _catsView: ICatsView? = null
-    val uiState = "dd"."dd" //= mutableStateOf?(Result)
-   //     private set
-    val parametr = "AAAA"
+
+  //  val coroutineExceptionHandler = CoroutineExceptionHandler{_, t ->
+   //         t.message
+    //    _catsView?.toastDisplay(t.message ?: "")
+   // }
+    private val CoroutineExceptionHandler = CoroutineExceptionHandler { _, t ->
+        CrashMonitor.trackWarning { t.message }
+        _catsView?.toastDisplay(t.message ?: "")
+    }
+
 
     fun onInitComplete() {
         viewModelScope.launch(Dispatchers.Main + CoroutineName("Pet")) {
             try {
                 val getcat = catsService.getCatFact()
-                val responce = _catsView?.populate(parametr)
+                val url = "https://aws.random.cat/meow"
+                val fact = catsService.getCatFact()
+                _catsView?.populate(Additional(fact.text, url))
 
-                uiState.value = uiState.Success(responce)
             } catch (ex: Exception) {
                 when (ex) {
                     is SocketTimeoutException -> {
-                        Toast.makeText(
-                            currentCoroutineContext(),
-                            "Failed to get responce from server",
-                            Toast.LENGTH_LONG
-                        ).show();
+                        _catsView?.toastDisplay("Failed to get responce from server")
+
                     }
                     else -> CrashMonitor.trackWarning {
-                        Toast.makeText(
-                            coroutineContext,
-                            ex.message,
-                            Toast.LENGTH_LONG
-                        ).show();
+                        CoroutineExceptionHandler.toString()
                     }
                 }
             }
@@ -56,3 +56,7 @@ class CatsPresenter(
         _catsView = null
     }
 }
+
+//   fun showToast(text: String) {
+//        Toast.makeText(App.INSTANCE?.applicationContext, text, Toast.LENGTH_LONG).show()
+//showToast(e.message.toString())
