@@ -1,14 +1,13 @@
 package otus.homework.coroutines
 
 import android.content.Context
-import android.provider.ContactsContract
 import android.util.AttributeSet
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.example.app.R
 import com.squareup.picasso.Picasso
+import kotlin.Result
 
 class CatsView @JvmOverloads constructor(
     context: Context,
@@ -25,10 +24,10 @@ class CatsView @JvmOverloads constructor(
         }
     }
 
-    override fun populate(fact: Additional) {
-        findViewById<TextView>(R.id.fact_textView).text = fact.fact
+    fun populate(model: String) {
+        findViewById<TextView>(R.id.fact_textView).text = model.toString()
         Picasso.get()
-            .load(fact.url)
+            .load(model.toString())
             .into(findViewById<ImageView>(R.id.imageV))
     }
 
@@ -39,6 +38,6 @@ class CatsView @JvmOverloads constructor(
 
 interface ICatsView {
 
-    fun populate(fact: Additional)
+    fun populate(model: Result.Companion)
     fun toastDisplay(text: String)
 }
